@@ -50,6 +50,7 @@ dependencies:
   flutter_stripe: 9.4.0
   dio: ^5.8.0+1
   firebase_messaging: ^15.2.7
+  flutter_dotenv: ^5.1.0
   
 
 dev_dependencies:
@@ -76,6 +77,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+  - .env 
   - assets/cart2.png
   - assets/delivery.png
   - assets/card.png

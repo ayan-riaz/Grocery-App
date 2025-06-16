@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:food_app/const.dart';
 import 'package:food_app/services/notification_services.dart';
@@ -30,13 +31,32 @@ final theme = ThemeData().copyWith(
 );
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = stripePublishableKey;
+  
+
+  await dotenv.load(fileName: ".env");
+
+
+  assert(dotenv.env['STRIPE_PUBLISHABLE_KEY'] != null, 
+         'Stripe publishable key missing from .env');
+  assert(dotenv.env['STRIPE_SECRET_KEY'] != null,
+         'Stripe secret key missing from .env');
+
+ 
+  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
+
+
   await Firebase.initializeApp();
   await NotificationServices().initFCM();
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
   );
+
+print('Loaded ENV:');
+dotenv.env.forEach((key, value) => print('$key = ${value?.substring(0, 8)}...'));
+  print('Stripe Keys Loaded:');
+  print('Publishable: ${dotenv.env['STRIPE_PUBLISHABLE_KEY']?.substring(0, 8)}...');
+  print('Secret: ${dotenv.env['STRIPE_SECRET_KEY']?.substring(0, 8)}...');
 
   runApp(const MyApp());
 }

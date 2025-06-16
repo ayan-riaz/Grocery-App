@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:food_app/const.dart'; 
+
 class StripeService {
   StripeService._();
   static final StripeService instance = StripeService._();
@@ -38,39 +39,32 @@ class StripeService {
     }
   }
 
-  Future<String?> createPaymentIntent(int amount, String currency) async {
-    try {
-      final Dio dio = Dio();
+Future<String?> createPaymentIntent(int amount, String currency) async {
+  final secretKey = dotenv.env['STRIPE_SECRET_KEY'];
+  if (secretKey == null || secretKey.isEmpty) {
+    throw Exception('Stripe secret key not configured');
+  }
 
-      final body = {
+  try {
+    final response = await Dio().post(
+      'https://api.stripe.com/v1/payment_intents',
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $secretKey', // Use the verified key
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      ),
+      data: {
         'amount': amount.toString(),
         'currency': currency,
-        'payment_method_types[]': 'card',
-      };
-
-      final response = await dio.post(
-        'https://api.stripe.com/v1/payment_intents',
-        data: body,
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-          headers: {
-            'Authorization': 'Bearer $stripeSecretKey',
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        ),
-      );
-
-      print('✅ Stripe Response: ${response.data}');
-      return response.data['client_secret'];
-    } on DioException catch (e) {
-      if (e.response != null) {
-        print('❌ Stripe Error: ${e.response!.data}');
-      } else {
-        print('❌ Dio Error: $e');
-      }
-      return null;
-    }
+      },
+    );
+    return response.data['client_secret'];
+  } catch (e) {
+    print('❌ Stripe Error: $e');
+    return null;
   }
+}
 
   Future<void> processpayment(int amount) async {
     try {
