@@ -43,7 +43,9 @@ A fully functional grocery shopping mobile app built using **Flutter** and **Fir
 - Android Studio / VSCode
 
 
-## Live Demo:
-```
-https://foodapp-781d0.web.app
-```
+##  Live Demo
+app is live here:
+
+👉 **[Open Food App](https://foodapp-781d0.web.app)**
+
+
